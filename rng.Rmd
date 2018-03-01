@@ -1,0 +1,317 @@
+---
+title: "Homework 3"
+author: 
+      - Anurag Amin - Q.2 & Q.3(b) & 
+      - Michael Noyes - Q.1 & Q.3(a)
+date: "3/1/2018"
+output: pdf_document
+---
+
+# Problem 1: E-M algorithm
+
+The complete log-likelihood can be written as:
+
+$$l_n^c(\Psi) = \sum_{i=1}^{n} \log[p(y_i,\textbf{x}_i,z_i;\Psi)] = \sum_{i=1}^{n} \sum_{j=1}^{m} z_{ij} \log[\pi_j \phi(y_i - \textbf{x}_i^T\beta_j; 0,\sigma^2] = \sum_{i=1}^{n} \sum_{j=1}^{m} z_{ij} \log[\pi_j*\phi(y_i - \textbf{x}_i^T\beta_j; 0,\sigma^2)]$$
+
+E-Step:
+
+$$Q(\Psi\,|\,\Psi^{(k)}) = E_z[l_n^c(\Psi)] = E_z[\sum_{i=1}^{n} \sum_{j=1}^{m} z_{ij} \log\{\pi_j^{(k)} * \phi(y_i - \textbf{x}_i^T{\beta_j}^{(k)};0,{\sigma^2}^{(k)}\}] = \sum_{i=1}^{n} \sum_{j=1}^{m} E[z_{ij} \,|\, y_i,\textbf{x}_i;\Psi^{(k)}] [\log\{\pi_j^{(k)} * \phi(y_i-\textbf{x}_i^T{\beta_j}^{(k)};0,{\sigma^2}^{(k)}\}]$$
+
+So,
+
+$$Q(\Psi\,|\,\Psi^{(k)}) = \sum_{i=1}^{n} \sum_{j=1}^{m} p_{ij}^{(k+1)} [log\{\pi_j^{(k)} * \phi(y_i-\textbf{x}_i^T{\beta_j}^{(k)};0,{\sigma^2}^{(k)})\}]$$
+
+Note, using Bayes' Rule we can see that:
+
+$$p_{ij}^{(k+1)} = E[z_{ij}\,|\, y_i\textbf{x}_i;\Psi^{(k)}] = \frac{p(z_{ij};\pi)p(\textbf{x}_{i} \,|\,y_{i},z_{i};\Psi^{(k)})}{p(y_{i},\textbf{x}_{i};\Psi^{(k)})} = \frac{\pi_j^{(k)}\phi(y_i-\textbf{x}_i^T\beta_j^{(k)};0,{\sigma^2}^{(k)})}{\sum_{j=1}^{m}\pi_j^{(k)}\phi(y_i-\textbf{x}_i^T\beta_j^{(k)};0,{\sigma^2}^{(k)})}$$
+
+Also note that $z{ij} = 1$ if observation i is from component j; $z{ij} = 0$ otherwise
+
+M-Step: We maximize the conditional expectation with respect to $\Psi$ to obtain $({\beta}^{(k+1)},{\sigma}^{2(k+1)})$
+
+$$Q(\Psi \,|\, \Psi^{(k)}) = \sum_{i=1}^{n} \sum_{j=1}^{m} E[z_{ij} \,|\,y_i,\textbf{x}_i;\Psi^{(k)}] [\log\pi_j^{(k)} * \phi(y_i-\textbf{x}_i^T\beta_j^{(k)};0,{\sigma^2}^{(k)})] = \sum_{i=1}^{n} \sum_{j=1}^{m} p_{ij}^{(k+1)} \log[\pi_j^{(k)}] + \sum_{i=1}^{n}\sum_{j=1}^{m}p_{ij}^{(k+1)}\log[\phi(y_i-\textbf{x}_i^T\beta_j^{(k)};0,{\sigma^2}^{(k)})]$$
+
+$$ Q(\Psi \,|\, \Psi^{(k)}) = \sum_{i=1}^{n}\sum_{j=1}^{m} p_{ij}^{(k+1)}\log[\pi_j^{(k)}] + \sum_{i=1}^{n}\sum_{j=1}^{m}p_{ij}^{(k+1)} \log[\frac{1}{\sqrt{2\pi*\sigma^{2}}^{(k)}}] -
+\sum_{i=1}^{n}\sum_{j=1}^{m}p_{ij}^{(k+1)}\frac{(y_i-\textbf{x}_i^T\beta_j^{(k)})^2}{2*{\sigma^2}^{(k)}}$$
+
+From lecture notes we know that maximization can be obtained by finding a solution for L'(q1,...,qk)=0, i.e.
+
+$$\frac{\partial L(q_{1},...q_{k})}{\partial q_{k}} = 0$$
+
+where
+
+$$L(q_{1},...,q_{k}) = \sum_{k=1}^{K} W_{k} log[q_{k}] - \lambda {\sum_{k=1}^{K}(q_{k}-1)}$$
+
+with $\lambda$ a Lagrange multiplier.
+
+Now, we must apply the Lagrange equation to the solution above with the constraint that $\sum_{j=1}^{m}\pi_j = 1$. We get the following:
+
+$$L[{\pi_1}^{(k)},...,{\pi_m}^{(k)}; \lambda] = Q(\Psi \,|\, \Psi^{(k)}) - \lambda (\sum_{j=1}^{m}{\pi_j}^{(k)} - 1)$$
+
+Next, we must take the derivative of the L with respect to $\pi_j^{(k)}$. Setting the resulting derivative equal to 0 we get the following:
+
+$$\frac{\partial L}{\partial\pi_j^{(k)}} = \sum_{i=1}^{n}{p_{ij}}^{(k+1)}\frac{1}{\pi_j^{(k+1)}} - \lambda = 0$$
+
+We get
+
+$$\pi_j^{(k+1)} = \frac{\sum_{i=1}^{n} p_{ij}^{(k+1)}}{n}$$
+
+$$\frac{\sum_{i=1}^{n}\sum_{j=1}^{m}p_{ij}^{(k+1)}}{\lambda} = \frac{n}{\lambda} = 1$$
+
+Now, we must refer back to the equation equal to $Q(\Psi \,|\, \Psi^{(k)})$.
+First, to get $\beta_j^{(k+1)}$ we must take the derivative of the equation with respect to $\beta_j^{(k)}$. Setting this equal to 0, we get:
+
+$$\frac{\partial Q}{\partial \beta_j^{(k)}} \propto \sum_{i=1}^{n} p_{ij}^{(k+1)} \textbf{x}_i(y_i-\textbf{x}_i^T\beta_j^{(k+1)}) = 0$$
+
+Rearranging this equation, we get:
+
+$$\sum_{i=1}^{n} p_{ij}^{(k+1)}\textbf{x}_i y_i = \sum_{i=1}^{n}\textbf{x}_i\textbf{x}_i^T\beta_j^{(k+1)}p_{ij}^{(k+1)}$$
+
+Ultimately solving to get:
+
+$$\beta_j^{(k+1)} = [\sum_{i=1}^{n} \textbf{x}_i\textbf{x}_i^Tp_{ij}^{(k+1)}]^{-1} [\sum_{i=1}^{n} \textbf{x}_i p_{ij}^{(k+1)}y_i]$$
+
+where j ranges from 1 to m.
+
+
+
+Next, we need to solve for ${\sigma^2}^{(k+1)}$. Again, we must take the derivative of the equation equal to $Q(\Psi \,|\, \Psi^{(k)})$, but this time with respect to ${\sigma^2}^{(k)}$. Setting this equal to 0 we get:
+
+$${\sigma^2}^{(k+1)} = \frac{\sum_{i=1}^{n} \sum_{j=1}^{m} p_{ij}^{(k+1)}(y_i - \textbf{x}_i^T\beta_j^{(k+1)})^2}{\sum_{i=1}^{n}\sum_{j=1}^{m}p_{ij}^{(k+1)}}$$
+
+$${\sigma^2}^{(k+1)} = \frac{\sum_{i=1}^{n}\sum_{j=1}^{m}p_{ij}^{(k+1)} (y_i-\textbf{x}_i^T\beta_j^{(k+1)})^2}{n}$$
+\newpage
+
+# Problem 2: Gamma mixture models and Rejection Sampling {#sec:Q2}
+
+Our goal here is to simulate observations from a given density function $f(x)$. We will achieve this by using the Rejection Sampling Method with instrumental density function $g(x)$.
+
+\begin{equation} 
+f(x)   \propto \sqrt{(4 + x)} x^{\theta - 1} e^{-x} \end{equation}
+
+\begin{equation}  g(x)   \propto (2 x^{\theta - 1} + x^{\theta - \frac{1}{2}}) e^{-x} 
+\end{equation}
+
+(a) Here, we try to find the value of the normalizing constant C in the density function $g(x)$.
+
+$$ g(x) = C*(2 x^{\theta - 1} + x^{\theta - \frac{1}{2}}) e^{-x} $$
+Since $g(x)$ is a density function, its integral over all values of x will result to "1". Hence:
+
+
+\begin{align*} \int_{0}^{\infty} g(x) dx &= 1 \\ 
+\int_{0}^{\infty} C*(2 x^{\theta - 1} + x^{\theta - \frac{1}{2}}) e^{-x} dx &= 1 \\
+C \Big[ \int_{0}^{\infty}  2 x^{\theta - 1} e^{-x} dx +  \int_{0}^{\infty} x^{\theta - \frac{1}{2}} e^{-x} dx \Big] &= 1 
+\end{align*}
+
+\begin{equation}
+C \Big[  2 \Gamma(\theta) \int_{0}^{\infty} \frac{x^{\theta - 1} e^{-x}}{\Gamma(\theta)} dx + \Gamma(\theta + \frac{1}{2}) \int_{0}^{\infty} \frac{x^{(\theta + \frac{1}{2}) - 1} e^{-x}}{\Gamma(\theta + \frac{1}{2})} dx \Big] = 1 
+\end{equation}
+
+It can be observed that the integral in the above equation is a mixture of two gamma density integral functions, namely $\Gamma(rate = 1, shape = \theta)$ and $\Gamma(rate = 1, shape = \theta + \frac{1}{2})$.
+
+\begin{gather*} 
+C \Big[  2 \Gamma(\theta) \int_{0}^{\infty} \frac{x^{\theta - 1} e^{-x}}{\Gamma(\theta)} dx + \Gamma(\theta + \frac{1}{2}) \int_{0}^{\infty} \frac{x^{(\theta + \frac{1}{2}) - 1} e^{-x}}{\Gamma(\theta + \frac{1}{2})} dx \Big] = 1  \\
+C \Big[ 2 \Gamma(\theta) + \Gamma(\theta + \frac{1}{2}) \Big] = 1 \\ 
+C = \Big[ \frac{1}{2 \Gamma(\theta) + \Gamma(\theta + \frac{1}{2})} \Big] \\
+\end{gather*}
+
+So, the density function $g(x)$ is given as follows:
+\begin{gather*}
+g(x) =  \frac{1}{2 \Gamma(\theta) + \Gamma(\theta + \frac{1}{2})} (2 x^{\theta - 1} + x^{\theta - \frac{1}{2}}) e^{-x} \\
+g(x) =  \frac{2 \Gamma(\theta)}{2 \Gamma(\theta) + \Gamma(\theta + \frac{1}{2})} \Big( \frac{x^{\theta - 1} e^{-x}}{\Gamma(\theta)} \Big) +  \frac{\Gamma(\theta + \frac{1}{2})}{2 \Gamma(\theta) + \Gamma(\theta + \frac{1}{2})} \Big( \frac{x^{(\theta + \frac{1}{2}) - 1} e^{-x}}{\Gamma(\theta + \frac{1}{2})} \Big) 
+\end{gather*}
+
+$g(x)$ is a mixture density function of two gamma densities, $\Gamma(rate = 1, shape = \theta)$ and $\Gamma(rate = 1, shape = \theta + \frac{1}{2})$ with weights $\alpha_{1} = \frac{2 \Gamma(\theta)}{2 \Gamma(\theta) + \Gamma(\theta + \frac{1}{2})}$, $\alpha_{2} = \frac{\Gamma(\theta + \frac{1}{2})}{2 \Gamma(\theta) + \Gamma(\theta + \frac{1}{2})}$ such that
+$$ \alpha_{1} + \alpha_{2}  = 1  $$
+
+(b) Now, we will sample from g and plot the kernel density approximation and true density.
+
+```{r, echo=FALSE}
+
+sim_g <- function(sample_size, theta) {
+  alpha1 = 2*gamma(theta)/(2*gamma(theta) + gamma(theta+(1/2)))
+  condition = rbinom(sample_size, 1, alpha1)
+  sim_g = numeric(sample_size)
+  for (i in 1:sample_size) {
+    if (condition[i] == 1) {
+      sim_g[i] <- rgamma(1, shape = theta, rate = 1)
+    }
+    else {sim_g[i] <- rgamma(1, shape = theta + (1/2), rate = 1)}
+  }
+  return(sim_g)
+}
+
+#Now we will simulate 10000 from the g(x) mixture density with theta = 2
+
+sample_size_g <- 10000
+theta_g <- 2
+g_actual<- sim_g(sample_size_g, theta_g)
+alpha2 = 2*gamma(theta_g)/(2*gamma(theta_g) + gamma(theta_g + (1/2)))
+plot(density(g_actual), col="blue", main="Plot of Kernel Density and True Density")
+curve(alpha2*dgamma(x, shape=2, rate=1) + (1-alpha2)*dgamma(x, shape=5/2, rate=1), xlim=c(0,max(g_actual)), col="red", add=TRUE)
+legend("topright", legend = c("Kernel Density Approximation", "True Density"), col = c("blue", "red"), lty = c(1,1))
+```
+\\
+Hence, from the plot we can see that our kernel density approximation is pretty good.
+
+(c) Now, we will use Rejection Sampling to sample from $f(x)$
+
+\begin{align}
+f(x) &\propto \sqrt{(4 + x)} x^{\theta - 1} e^{-x} \\ 
+Let \ q(x) &= \sqrt{(4 + x)} x^{\theta - 1} e^{-x} \\
+q(x) &\le (\sqrt{4} + \sqrt{x}) x^{\theta - 1} e^{-x} \\
+q(x) &\le (2 x^{\theta - 1} + x^{\theta - \frac{1}{2}}) e^{-x} \\
+q(x) &\le g(x) \\
+\alpha &= 1 \\
+\end{align}
+
+```{r, echo=FALSE}
+sim_f <- function(sample_size, theta) {
+  count = 0
+  count_rejection = 0
+  sim_f <- numeric(0)
+  while(count < sample_size) {
+    g_sample <- sim_g(1, theta)
+    uniform <- runif(1,0,1)
+    q_x <- sqrt(4 + g_sample)*((g_sample)^(theta-1))*exp(-1*g_sample)
+    g_x <- 2*((g_sample)^(theta-1))*exp(-1*g_sample) + 
+                    ((g_sample)^(theta-(1/2)))*exp(-1*g_sample)
+    ratio <- (q_x)/(g_x)
+    if (uniform <= ratio) { 
+      sim_f <- append(sim_f, g_sample)
+      count = count + 1
+    }
+    else {
+      count_rejection = count_rejection + 1
+    }
+  }
+  acceptance_rate = count/(count + count_rejection)
+  return(sim_f)
+}
+
+sample_size_f <- 10000
+theta_f <- 2
+f_sample <- sim_f(sample_size_f, theta_f)
+
+plot(density(f_sample), col = "red", main="Graph of estimated density of sample generated from f")
+legend("topright", legend = c("Estimated Density of f(x)"), col = c("red"), lty = c(1))
+```
+\newpage
+
+# Problem 3: Two methods to sample from f
+
+(a) Our goal is to simulate observations from a given density. Note, the density looks similar to the sum of Beta distributions.
+
+$$f(x)\propto\frac{x^{\theta-1}}{1+x^2}+\sqrt{2+x^2}(1-x)^{\beta-1} where 0 < x < 1$$
+
+We can show that
+
+$$f(x)\propto\frac{x^{\theta-1}}{1+x^2}+\sqrt{2+x^2}(1-x)^{\beta-1}q(x)=\frac{x^{\theta-1}}{1+x^2}+\sqrt{2+x^2}(1-x)^{\beta-1}q(x) \le x^{\theta-1}+\sqrt{2}(1-x)^{\beta-1}+\sqrt{x^2}(1-x)^{\beta-1}q(x) \le alphag(x)$$
+
+because $\sqrt{2+x^2} \le \sqrt{2}+x$ and $1 \le (1+x^2)$
+
+We must show that g(x) is less than $\alpha$g(x) in order to simulate using rejection sampling and the mixture of beta distributions. Solving for alpha we get:
+
+$$g(x) \propto x^{\theta-1}+\sqrt{2}(1-x)^{\beta-1}+x(1-x)^{\beta-1}g(x) = C[B(\theta,1)\frac{x^{\theta-1}}{B(\theta,1)}+\sqrt{2} B(1,\beta)\frac{(1-x)^{\beta-1}}{B(1,\beta)}+B(2,\beta)\frac{x(1-x)^{\beta-1}}{B(2,\beta)}$$
+
+$$\int_{0}^{\infty} g(x)=1/C[B(\theta,1)+B(1,\beta)+B(2,\beta)] = 1/C =\frac{1}{B(\theta,1)+B(1,\beta)+B(2,\beta)}$$
+
+$$\alpha=\frac{1}{C}=B(\theta,1)+B)(1,\beta)+B(2,\beta)$$
+
+```{r, echo=FALSE, eval=FALSE}
+beta_sim <- function(tt, b) {
+  f <- function(x){
+    beta(tt,1)/(beta(tt,1) + sqrt(2)*beta(1,b) + beta(2,b))
+  }
+  g <- function(x){
+    sqrt(2)*beta(1,b)/(beta(tt,1)+sqrt(2)*beta(1,b)+beta(2,b))
+  }
+  z <- (1/theta)/(1/theta+1/beta)
+  count <- 0
+  draw <- c()
+  n <- 10000
+while(count<=n){
+    repeat{
+      w <- runif(1,0,1)
+      if (w<=z){
+        x <- rbeta(1,shape1 = theta,shape2 = 1)}
+      else{
+        x <- rbeta(1,shape1 = 1,shape2 = beta) }  
+      t <- w*g(x)
+      if(t<=f(x)){break}
+    }
+    count <- count+1
+    draw <- c(draw,x)
+}
+  return(draw)
+}
+
+A <- beta_sim(2,5)
+hist(A,freq=F,xlab="x",ylab="density",main="Estimated Density of sample with theta=2 and beta=5")
+lines(density(A))
+```
+
+Note: I am having a lot of trouble getting this code to run. I'm out of time, however, so I will submit the solution as is.
+
+(b) Here, we use the two parts of the function separately and then sample from f.
+
+\begin{align*} 
+f(x) &\propto \Big( \frac{x^{\theta - 1}}{1 + x^{2}} \Big) + \Big( \sqrt{2 + x^{2}} (1 - x)^{\beta - 1} \Big)\\
+f(x) &\propto \sum_{i=1}^{2} q_{i}(x)\\ 
+where\hspace{2mm} q_{1}(x) &= \frac{x^{\theta - 1}}{1 + x^{2}}\hspace{2mm} &\\ 
+q_{2}(x) &= \sqrt{2 + x^{2}} (1 - x)^{\beta - 1}\\ 
+q_{1}(x) &\le B (\theta,1) \frac{x^{\theta - 1}}{B (\theta,1)}\\ 
+g_{1}(x) &= \frac{x^{\theta - 1}}{B (\theta,1)}\\
+\alpha_{1} &= B (\theta,1)\\
+q_{2}(x) &\le \sqrt{2} (1 - x)^{\beta - 1} + x (1 - x)^{\beta - 1}\\
+q_{2}(x) &\le \sqrt{2} B (1,\beta) \frac{(1 - x)^{\beta - 1}}{B (1,\beta)} + B (2, \beta) \frac{x (1 - x)^{\beta - 1}}{B (2, \beta)}\\
+q_{2}(x) &\le \Big( \sqrt{2} B (1,\beta) + B (2, \beta) \Big) \Big( \frac{\sqrt{2} B (1,\beta)}{\sqrt{2} B (1,\beta) + B (2, \beta)} \frac{(1 - x)^{\beta - 1}}{B (1,\beta)} + \frac{B (2, \beta)}{\sqrt{2} B (1,\beta) + B (2, \beta)} \frac{x (1 - x)^{\beta - 1}}{B (2, \beta)} \Big)\\
+g_{2}(x) &= \frac{\sqrt{2} B (1,\beta)}{\sqrt{2} B (1,\beta) + B (2, \beta)} \frac{(1 - x)^{\beta - 1}}{B (1,\beta)} + \frac{B (2, \beta)}{\sqrt{2} B (1,\beta) + B (2, \beta)} \frac{x (1 - x)^{\beta - 1}}{B (2, \beta)}\\
+\alpha_{2} &= \sqrt{2} B (1,\beta) + B (2, \beta)
+\end{align*}
+
+Now, we plot the estimated density -
+
+```{r, echo=FALSE}
+f1 <- function(sample_size, theta1, beta1){
+  alpha3 <- beta(theta1,1)
+  alpha4 <- (sqrt(2))*beta(1, beta1) + beta(2, beta1)
+  a_34 <- alpha3/(alpha3 + alpha4)
+  count <- 0 
+  count_rejection <- 0
+  f1 <- numeric(0)
+  while(count < sample_size) {
+    condition1 <- rbinom(1, 1, a_34)
+    if (condition1 == 1) {
+      x <- rbeta(1, theta1, 1)
+      q1_x <- (x^(theta1 - 1))/(1 + x^2)
+      alphag1_x <-  (x^(theta1 - 1))
+      ratio_x <-  q1_x/alphag1_x
+    }
+    else { 
+      mix_prob <- sqrt(2)*beta(1, beta1)/(alpha4)
+      mix_ind <- rbinom(1, 1, mix_prob)
+      if(mix_ind == 1) {x <- rbeta(1,1,beta1)}
+      else {x <- rbeta(1, 1, beta1 + 1)}
+      q2_x <- (sqrt(2 + x^2))*((1-x)^(beta1 - 1))
+      alphag2_x <- sqrt(2)*((1-x)^(beta1 - 1)) + x*(1-x)^(beta1 - 1)
+      ratio_x <- q2_x/alphag2_x
+    }
+    u <- runif(1, 0, 1)
+    if(u <= ratio_x) {
+    f1 <- append(f1, x)
+      count <- count  + 1
+    }
+    else {count_rejection <- count_rejection + 1}
+  }
+  acceptance_rate <- count/(count+count_rejection)
+  return(f1)
+}
+
+q <- function(y) {
+  return((y/(1+y^2)) + sqrt(2 + y^2)*((1-y)^3)) }
+
+plot(density(f1(10000, 2, 4)), col = "green", main="Estimated Density")
+curve(q(x)/0.7058734, xlim = c(0,1), add = TRUE, col = "yellow")
+legend("topright", legend = c("Kernel Density", "Actual Density"), col = c("green","yellow"), lty = c(1,1))
+```
